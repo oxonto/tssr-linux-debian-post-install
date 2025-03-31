@@ -2,3 +2,4 @@ nmap
 net-tools
 htop
 curl
+wget
