@@ -3,3 +3,5 @@ net-tools
 htop
 curl
 wget
+dnsutils
+sudo
