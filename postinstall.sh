@@ -15,7 +15,7 @@ log() {
   echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
 
-# Function to check and install packages
+# Function to check and install packages if necessary and log the result
 check_and_install() {
   local pkg=$1
   if dpkg -s "$pkg" &>/dev/null; then
@@ -107,6 +107,9 @@ fi
 
 # === 6. ADD SSH PUBLIC KEY ===
 # test if user wants to add a public SSH key and create it if he wants
+# if user wants to add a public SSH key, change owner .ssh folder and change permissions on folder and file :
+# - 700 on .ssh folder // owner user had read/write/execute permissions and group and others had no permissions
+# - 600 on ssh keys // owner user had read/write permissions and group and others had no permissions
 if ask_yes_no "Would you like to add a public SSH key?"; then
   read -p "Paste your public SSH key: " ssh_key
   mkdir -p "$USER_HOME/.ssh"
@@ -119,7 +122,10 @@ fi
 
 
 # === 7. SSH CONFIGURATION: KEY AUTH ONLY ===
-# test if sshd_config file exists, then modify it to accept key-based authentication only and log it else skip
+# test if sshd_config file exists, then modify it to accept key-based authentication only and log it else skip 
+# 1.modify sshd_config file to refuse password-based authentication
+# 2.modify sshd_config file to refuse challenge-response authentication
+# 3.modify sshd_config file to accept key-based authentication
 if [ -f /etc/ssh/sshd_config ]; then
   sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
   sed -i 's/^#\?ChallengeResponseAuthentication.*/ChallengeResponseAuthentication no/' /etc/ssh/sshd_config
